@@ -1,4 +1,4 @@
-<?php namespace Addon\Module\Fizl;
+<?php namespace Streams\Addon\Module\Fizl;
 
 use Streams\Addon\ModuleAbstract;
 

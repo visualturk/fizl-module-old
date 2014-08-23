@@ -1,4 +1,4 @@
-<?php namespace Addon\Module\Fizl\Controller;
+<?php namespace Streams\Addon\Module\Fizl\Controller;
 
 use Streams\Controller\PublicController;
 

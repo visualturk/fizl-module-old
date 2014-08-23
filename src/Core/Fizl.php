@@ -1,4 +1,4 @@
-<?php namespace Addon\Module\Fizl\Core;
+<?php namespace Streams\Addon\Module\Fizl\Core;
 
 class Fizl
 {

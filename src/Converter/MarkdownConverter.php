@@ -1,4 +1,4 @@
-<?php namespace Addon\Module\Fizl\Converter;
+<?php namespace Streams\Addon\Module\Fizl\Converter;
 
 use Addon\Module\Fizl\Contract\ConverterInterface;
 

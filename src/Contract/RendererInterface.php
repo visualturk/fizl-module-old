@@ -1,4 +1,4 @@
-<?php namespace Addon\Module\Fizl\Contract;
+<?php namespace Streams\Addon\Module\Fizl\Contract;
 
 interface RendererInterface
 {
