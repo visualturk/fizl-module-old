@@ -1,8 +1,7 @@
 {
-    "name": "streams/fizl-module",
+    "name": "anomalylabs/fizl-module",
     "type": "module",
     "description": "Fizl module for Streams Platform",
-    "version" : "1.0.0",
     "authors": [
         {
             "name": "AnomalyLabs",
