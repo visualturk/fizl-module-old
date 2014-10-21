@@ -1,6 +1,6 @@
-<?php namespace Streams\Addon\Module\Fizl;
+<?php namespace Anomaly\Streams\Module\Fizl;
 
-use Streams\Addon\ModuleAbstract;
+use Anomaly\Streams\ModuleAbstract;
 
 class FizlModule extends ModuleAbstract
 {

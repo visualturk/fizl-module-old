@@ -1,4 +1,4 @@
-<?php namespace Streams\Addon\Module\Fizl\Converter;
+<?php namespace Anomaly\Streams\Module\Fizl\Converter;
 
 use Addon\Module\Fizl\Contract\ConverterInterface;
 use Netcarver\Textile\Parser as TextileParser;

@@ -1,4 +1,4 @@
-<?php namespace Streams\Addon\Module\Fizl\Controller;
+<?php namespace Anomaly\Streams\Module\Fizl\Controller;
 
 use Streams\Controller\PublicController;
 
