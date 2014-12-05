@@ -1,4 +1,4 @@
-Fizl-Module
+fizl-module
 ===========
 
-The Fizl module for Streams.
+Fizl module.

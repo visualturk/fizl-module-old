@@ -1,13 +1,13 @@
-<?php namespace Anomaly\Streams\Module\Fizl;
+<?php namespace Anomaly\Streams\Addon\Module\Fizl;
 
-use Anomaly\Streams\ModuleAbstract;
-
-class FizlModule extends ModuleAbstract
+class FizlModule extends \Anomaly\Streams\Platform\Addon\Module\Module
 {
+
     /**
-     * The icon to represent the module.
+     * The module's navigation group.
      *
-     * @var string
+     * @var null
      */
-    public $icon = '<i class="ion-ios7-bolt"></i>';
+    protected $navigation = 'admin.navigation.content';
 }
+ 
