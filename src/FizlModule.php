@@ -8,6 +8,6 @@ class FizlModule extends \Anomaly\Streams\Platform\Addon\Module\Module
      *
      * @var null
      */
-    protected $navigation = 'admin.navigation.content';
+    protected $navigation = 'navigation.content';
 }
  

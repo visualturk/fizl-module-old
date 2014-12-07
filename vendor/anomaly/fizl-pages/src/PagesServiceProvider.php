@@ -31,7 +31,7 @@ class PagesServiceProvider extends ServiceProvider
 
     public function register()
     {
-        $this->package('anomaly/fizl-pages', null, __DIR__);
+        //$this->package('anomaly/fizl-pages', null, __DIR__);
 
         $this->registerThirdPartyProviders();
         $this->registerBindings();
