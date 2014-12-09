@@ -1,5 +1,0 @@
-suites:
-  fizl_pages_suite:
-    spec_path: tests
-    namespace: Anomaly\FizlPages
-    psr4_prefix: Anomaly\FizlPages

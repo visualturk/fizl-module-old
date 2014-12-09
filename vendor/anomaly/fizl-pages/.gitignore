@@ -1,7 +1,0 @@
-#folders
-bin
-vendor
-.DS_Store
-
-#files
-composer.lock
