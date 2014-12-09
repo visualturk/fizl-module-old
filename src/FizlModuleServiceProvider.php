@@ -12,9 +12,9 @@ class FizlModuleServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        app()->register('Anomaly\FizlPages\PagesServiceProvider');
+        /*app()->register('Anomaly\FizlPages\PagesServiceProvider');
 
-        $pages = app()->make('Anomaly\FizlPages\Pages');
+        $pages = app()->make('Anomaly\FizlPages\Pages');*/
     }
 }
  
