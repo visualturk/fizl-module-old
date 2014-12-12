@@ -1,13 +1,21 @@
 <?php namespace Anomaly\Streams\Addon\Module\Fizl;
 
+/**
+ * Class FizlModule
+ *
+ * @link          http://anomaly.is/streams-platform
+ * @author        AnomalyLabs, Inc. <hello@anomaly.is>
+ * @author        Ryan Thompson <ryan@anomaly.is>
+ * @package       Anomaly\Streams\Addon\Module\Fizl
+ */
 class FizlModule extends \Anomaly\Streams\Platform\Addon\Module\Module
 {
 
     /**
-     * The module's navigation group.
+     * No admin navigation.
      *
-     * @var null
+     * @var bool
      */
-    protected $navigation = 'navigation.content';
+    protected $navigation = false;
 }
  

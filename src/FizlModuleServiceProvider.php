@@ -12,9 +12,32 @@ class FizlModuleServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        /*app()->register('Anomaly\FizlPages\PagesServiceProvider');
+        // First setup the config.
+        $this->app['config']->set('fizl-pages::home', 'home');
+        $this->app['config']->set('fizl-pages::namespaces', ['default']);
+        $this->app['config']->set('fizl-pages::extension_parsers', ['md' => 'Anomaly\FizlPages\Parser\PageParser']);
 
-        $pages = app()->make('Anomaly\FizlPages\Pages');*/
+        $this->app['config']->set(
+            'fizl-pages::base_path',
+            base_path('content') . '/' . app('streams.application')->getReference()
+        );
+
+        $this->app['config']->set(
+            'fizl-pages::composers',
+            ['Anomaly\FizlPages\View\Composer\ConfigViewComposer' => '*']
+        );
+
+        // Register the service provider now.
+        $this->app->register('Anomaly\FizlPages\PagesServiceProvider');
+
+        $pages = app('\Anomaly\FizlPages\Pages');
+
+        if ($pages->getPage(app('request')->path())) {
+            app('router')->any(
+                '/{any?}',
+                '\Anomaly\Streams\Addon\Module\Fizl\Http\Controller\FizlController@map'
+            )->where('any', '(.*)');
+        }
     }
 }
  

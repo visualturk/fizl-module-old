@@ -2,7 +2,6 @@
 
 use Anomaly\Lexicon\Parser\ParserResolver;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Factory;
 
@@ -38,7 +37,6 @@ class PagesServiceProvider extends ServiceProvider
         $this->registerViewComposers();
         $this->registerViewNamespaces();
         $this->registerParsers();
-
     }
 
     protected function registerThirdPartyProviders()
@@ -86,26 +84,21 @@ class PagesServiceProvider extends ServiceProvider
                 $view->composers(config('fizl-pages::composers', []));
             }
         );
-
     }
 
     protected function registerViewNamespaces()
     {
-        $this->app->resolving(
-            'view',
-            function (Factory $view) {
-                foreach (config('fizl-pages::namespaces', []) as $key => $value) {
-                    if (is_numeric($key)) {
-                        $namespace = $value;
-                        $dir       = config('fizl-pages::base_path') . '/' . $value;
-                    } else {
-                        $namespace = $key;
-                        $dir       = $value;
-                    }
-                    $view->addNamespace($namespace, $dir);
-                }
+        foreach (config('fizl-pages::namespaces', []) as $key => $value) {
+            if (is_numeric($key)) {
+                $namespace = $value;
+                $dir       = config('fizl-pages::base_path') . '/' . $value;
+            } else {
+                $namespace = $key;
+                $dir       = $value;
             }
-        );
+
+            app('view')->addNamespace($namespace, $dir);
+        }
     }
 
     protected function registerParsers()
@@ -124,5 +117,4 @@ class PagesServiceProvider extends ServiceProvider
             }
         );
     }
-    
 }
