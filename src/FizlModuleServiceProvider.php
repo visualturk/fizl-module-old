@@ -32,12 +32,12 @@ class FizlModuleServiceProvider extends ServiceProvider
 
         $pages = app('\Anomaly\FizlPages\Pages');
 
-        if ($pages->getPage(app('request')->path())) {
+        /*if ($pages->getPage(app('request')->path())) {
             app('router')->any(
                 '/{any?}',
                 '\Anomaly\Streams\Addon\Module\Fizl\Http\Controller\FizlController@map'
             )->where('any', '(.*)');
-        }
+        }*/
     }
 }
  
