@@ -2,6 +2,7 @@
 
 use Anomaly\Lexicon\Parser\ParserResolver;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Routing\Router;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\Factory;
 
@@ -37,6 +38,7 @@ class PagesServiceProvider extends ServiceProvider
         $this->registerViewComposers();
         $this->registerViewNamespaces();
         $this->registerParsers();
+
     }
 
     protected function registerThirdPartyProviders()
@@ -84,6 +86,7 @@ class PagesServiceProvider extends ServiceProvider
                 $view->composers(config('fizl-pages::composers', []));
             }
         );
+
     }
 
     protected function registerViewNamespaces()
@@ -96,8 +99,7 @@ class PagesServiceProvider extends ServiceProvider
                 $namespace = $key;
                 $dir       = $value;
             }
-
-            app('view')->addNamespace($namespace, $dir);
+            $this->app['view']->addNamespace($namespace, $dir);
         }
     }
 
@@ -117,4 +119,5 @@ class PagesServiceProvider extends ServiceProvider
             }
         );
     }
+    
 }
