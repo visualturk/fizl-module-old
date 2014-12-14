@@ -1,9 +1,11 @@
 <?php namespace Anomaly\FizlPages;
 
+use Anomaly\FizlPages\Page\Command\CheckPageExistsCommand;
+use Anomaly\FizlPages\Page\Command\CreatePageCommand;
 use Anomaly\FizlPages\Page\Command\RenderPageCommand;
-use Anomaly\FizlPages\Page\Component\Path\Path;
-use Anomaly\FizlPages\Page\Component\Uri\Uri;
-use Anomaly\FizlPages\Page\Contract\PageFactory;
+use Anomaly\FizlPages\Page\Component\Header\Contract\HeaderCollection;
+use Anomaly\FizlPages\PageFinder\Command\FindPagesCommand;
+use Anomaly\FizlPages\PageFinder\Command\SortPagesCommand;
 use Anomaly\FizlPages\Support\CommanderTrait;
 use Laracasts\Commander\Events\DispatchableTrait;
 
@@ -19,16 +21,56 @@ class Pages implements \Anomaly\FizlPages\Contract\Pages
     use DispatchableTrait;
 
     /**
-     * @var PageFactory
+     * @var string|null
      */
-    protected $pageFactory;
+    protected $sortBy;
 
     /**
-     * @param PageFactory $pageFactory
+     * @var bool
      */
-    public function __construct(PageFactory $pageFactory)
+    protected $descending = true;
+
+    /**
+     * @var int
+     */
+    protected $depth = 1;
+
+    /**
+     * @var string|null
+     */
+    protected $namespace;
+
+    /**
+     * @param string $sortBy
+     * @param bool   $descending
+     * @return $this
+     */
+    public function sortBy($sortBy, $descending = true)
     {
-        $this->pageFactory = $pageFactory;
+        $this->sortBy     = $sortBy;
+        $this->descending = $descending;
+        return $this;
+    }
+
+    /**
+     * @param int $depth
+     */
+    public function depth($depth = 1)
+    {
+        $this->depth = $depth;
+        return $this;
+    }
+
+    /**
+     * In namespace
+     *
+     * @param null $namespace
+     * @return $this
+     */
+    public function in($namespace = null)
+    {
+        $this->namespace = $namespace;
+        return $this;
     }
 
     /**
@@ -37,14 +79,11 @@ class Pages implements \Anomaly\FizlPages\Contract\Pages
      * @param string $namespace
      * @return string
      */
-    public function render($uri, array $data = [], $namespace = Path::DEFAULT_NAMESPACE)
+    public function render($uri = '/')
     {
-        $page = $this->getPage($uri, $data, $namespace);
-
+        $page = $this->find($uri);
         $this->execute(new RenderPageCommand($page));
-
         $this->dispatchEventsFor($page);
-
         return $page->getContent();
     }
 
@@ -54,20 +93,46 @@ class Pages implements \Anomaly\FizlPages\Contract\Pages
      * @param string $namespace
      * @return Page\Page
      */
-    public function getPage($uri, array $data = [], $namespace = Path::DEFAULT_NAMESPACE)
+    public function find($uri = '/')
     {
-        $uri = new Uri($uri, $namespace);
-
-        $page = $this->pageFactory->create($uri->toPath(), $data);
-
+        $page = $this->execute(new CreatePageCommand($uri, $this->namespace));
         $this->dispatchEventsFor($page);
-
         return $page;
     }
 
-    public function getPages()
+    /**
+     * @param        $uri
+     * @param null   $namespace
+     * @param int    $depth
+     * @param string $sortBy
+     * @param bool   $descending
+     * @return mixed
+     */
+    public function get($uri = '/')
     {
+        /** @var HeaderCollection $pages */
+        $pages = $this->execute(
+            new FindPagesCommand(
+                $uri,
+                $this->namespace,
+                $this->depth
+            )
+        );
 
+        $this->execute(new SortPagesCommand($pages, $this->sortBy, $this->descending, config('fizl-pages::page_sorters')));
+
+        $this->dispatchEventsFor($pages);
+
+        return $pages;
+    }
+
+    /**
+     * @param string $uri
+     * @return boolean
+     */
+    public function exists($uri = '/')
+    {
+        return $this->execute(new CheckPageExistsCommand($uri, $this->namespace));
     }
 
 }

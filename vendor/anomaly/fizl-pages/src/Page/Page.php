@@ -1,12 +1,13 @@
 <?php namespace Anomaly\FizlPages\Page;
 
+use Anomaly\FizlPages\Page\Component\Header\Command\DecorateHeaderCommand;
+use Anomaly\FizlPages\Page\Component\Header\Contract\Header;
 use Anomaly\FizlPages\Page\Component\Header\Contract\HeaderCollection;
 use Anomaly\FizlPages\Page\Component\Path\Contract\Path;
 use Anomaly\FizlPages\Page\Contract\Page as PageContract;
-use Anomaly\FizlPages\Page\Event\PageRendered;
 use Anomaly\FizlPages\Support\CommanderTrait;
-use Illuminate\Contracts\View\Factory as ViewFactory;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Str;
 use Laracasts\Commander\Events\EventGenerator;
 
 /**
@@ -19,19 +20,14 @@ class Page implements PageContract
     use EventGenerator, CommanderTrait;
 
     /**
-     * @var array
-     */
-    protected $data;
-
-    /**
      * @var HeaderCollection
      */
     protected $headers;
 
     /**
-     * @var Path
+     * @var string
      */
-    protected $path;
+    protected $uri;
 
     /**
      * @var string
@@ -49,52 +45,22 @@ class Page implements PageContract
     protected $missing = false;
 
     /**
-     * Index
+     * @var string|null
      */
-    const INDEX = 'index';
+    protected $namespace;
 
     /**
-     * Missing
-     */
-    const MISSING = 'errors.404';
-
-    /**
-     * @param Path   $path
-     * @param array  $data
-     * @param string $namespace
+     * @param                  $uri
+     * @param HeaderCollection $headers
+     * @param null             $namespace
+     * @param array            $data
      */
     public function __construct(
-        Path $path,
-        array $data = [],
-        HeaderCollection $headers
+        $uri,
+        $namespace = null
     ) {
-        $this->path        = $path;
-        $this->data        = $data;
-        $this->headers     = $headers;
-    }
-
-    /**
-     * @return array
-     */
-    public function getData()
-    {
-        return $this->data;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getNamespace()
-    {
-        return $this->path->toNamespace();
-    }
-
-    /**
-     * @return HeaderCollection
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
+        $this->uri       = $uri;
+        $this->namespace = $namespace;
     }
 
     /**
@@ -102,7 +68,42 @@ class Page implements PageContract
      */
     public function getUri()
     {
-        return $this->path->toUri();
+        return $this->uri;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNamespace()
+    {
+        return $this->namespace;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getNamespacePrefix()
+    {
+        if ($namespace = str_replace(['/', '.'], '_', $this->getNamespace())) {
+            $namespace .= '.';
+        }
+        return $namespace;
+    }
+
+    /**
+     * @param HeaderCollection $headers
+     */
+    public function setHeaders(HeaderCollection $headers)
+    {
+        $this->headers = $headers;
+    }
+
+    /**
+     * @return HeaderCollection
+     */
+    protected function getHeaders()
+    {
+        return $this->headers;
     }
 
     /**
@@ -110,11 +111,12 @@ class Page implements PageContract
      */
     public function getPath()
     {
-        return $this->path->toString();
+        $uri = str_replace('/', '.', $this->getUri());
+        return "fizl::{$this->getNamespacePrefix()}pages.{$uri}";
     }
 
     /**
-     * @return \Illuminate\Contracts\View\View
+     * @return \Illuminate\Contracts\View\View|null
      */
     public function getView()
     {
@@ -151,7 +153,7 @@ class Page implements PageContract
      */
     public function getIndexPath()
     {
-        return $this->getPath() . '.' . static::INDEX;
+        return $this->getPath() . '.index';
     }
 
     /**
@@ -159,7 +161,7 @@ class Page implements PageContract
      */
     public function getMissingPath()
     {
-        return $this->getNamespace() . '::' . static::MISSING;
+        return "fizl::{$this->getNamespacePrefix()}errors.404";
     }
 
     /**
@@ -179,4 +181,78 @@ class Page implements PageContract
         return $this->missing;
     }
 
+    /**
+     * @return string
+     */
+    public function getTitle()
+    {
+        $segments = explode('/', $this->getUri());
+        $last = $segments[count($segments)-1];
+        return $this->get('title', str_replace(['-', '-'], ' ', Str::title($last)));
+    }
+
+    /**
+     * @param Header $header
+     */
+    public function addHeader(Header $header)
+    {
+        if ($headers = $this->getHeaders()) {
+            $headers->put($header->getKey(), $header);
+        }
+    }
+
+    /**
+     * @param      $key
+     * @param null $default
+     * @return mixed
+     */
+    public function get($key, $default = null)
+    {
+        $value = $default;
+
+        if ($headers = $this->getHeaders()) {
+            $value = $headers->getValue($key, $default);
+        }
+
+        return $value;
+    }
+
+    /**
+     * @param $key
+     * @return mixed
+     */
+    public function __get($key)
+    {
+        $method = 'get'. Str::studly($key);
+
+        if (method_exists($this, $method)) {
+            return $method();
+        }
+
+        return $this->get($key);
+    }
+
+    /**
+     * @return array
+     */
+    public function toArray()
+    {
+        return [
+            'title' => $this->getTitle(),
+            'uri' => $this->getUri(),
+            'path' => $this->getPath(),
+            'namespace' => $this->getNamespace(),
+            'headers' => $this->getHeaders()->toArray(),
+        ];
+    }
+
+    public function toJson()
+    {
+        return json_encode($this->toArray());
+    }
+
+    public function __toString()
+    {
+        return $this->toJson();
+    }
 }

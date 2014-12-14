@@ -3,9 +3,11 @@
 use Anomaly\FizlPages\Cache\Contract\Cache;
 use Anomaly\FizlPages\Page\Component\Header\Command\PushHeadersIntoCollectionCommand;
 use Anomaly\FizlPages\Page\Component\Header\Contract\HeaderCollection;
-use Anomaly\FizlPages\Page\Component\Header\Header;
+use Anomaly\FizlPages\Page\PageHelper;
 use Anomaly\FizlPages\Support\CommanderTrait;
 use Anomaly\Lexicon\Parser\ParserInterface;
+use Carbon\Carbon;
+use Symfony\Component\Finder\SplFileInfo;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -59,16 +61,31 @@ class PageHeaderParser implements ParserInterface
             $headers = $this->yaml->parse($parts[1]);
         }
 
+        $file = new SplFileInfo($path, '', '');
+
+        $date = Carbon::createFromTimestamp($file->getMTime());
+
+        $dateFormat = config('fizl-pages::date_format', 'm/d/Y g:ia');
+
+        $headers['date_modified'] = $date->toDateTimeString();
+
+        if (isset($headers['date'])) {
+            try {
+                $headers['date'] = Carbon::createFromFormat($dateFormat, $headers['date'])->toDateTimeString();
+            } catch (\InvalidArgumentException $e) {
+                $headers['date'] = $headers['date_modified'];
+                //dd($e->getMessage());
+            }
+        } else {
+            $headers['date'] = $headers['date_modified'];
+        }
+
         $this->execute(new PushHeadersIntoCollectionCommand($headers, $this->headers));
 
-        $shortPath = str_replace('.md', '', str_replace(config('fizl-pages::base_path') . '/', '', $path));
+        $viewPath = PageHelper::filePathToViewPath($path);
 
-        $pathParts = explode('/', $shortPath);
-
-        if (count($pathParts) == 3) {
-            $cacheKey = Header::CACHE_PREFIX . $pathParts[0] . '::pages.' . $pathParts[2];
-            $this->cache->put($cacheKey, $headers);
-        }
+        $cacheKey = "{$viewPath}.headers";
+        $this->cache->put($cacheKey, $headers);
 
         return $string;
     }
