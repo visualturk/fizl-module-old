@@ -12,32 +12,65 @@ class FizlModuleServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // First setup the config.
-        $this->app['config']->set('fizl-pages::home', 'home');
-        $this->app['config']->set('fizl-pages::namespaces', ['default']);
-        $this->app['config']->set('fizl-pages::extension_parsers', ['md' => 'Anomaly\FizlPages\Parser\PageParser']);
+        $this->registerFizl();
 
-        $this->app['config']->set(
-            'fizl-pages::base_path',
-            base_path('content') . '/' . app('streams.application')->getReference()
-        );
+        /**
+         * Because this is registered AFTER
+         * Lexicon we need to force these
+         * configurations and bootstrapping
+         * on their respective objects.
+         */
+        $this->registerViewComposers();
+        $this->registerViewNamespaces();
+        $this->registerParsers();
+        $this->addViewExtension();
 
-        $this->app['config']->set(
-            'fizl-pages::composers',
-            ['Anomaly\FizlPages\View\Composer\ConfigViewComposer' => '*']
-        );
+        $this->routeFizlPages();
+    }
 
-        // Register the service provider now.
+    protected function registerFizl()
+    {
         $this->app->register('Anomaly\FizlPages\PagesServiceProvider');
+    }
 
-        $pages = app('\Anomaly\FizlPages\Pages');
+    protected function registerViewComposers()
+    {
+        $this->app->make('view')->composers(config('fizl-pages::composers', []));
+    }
 
-        /*if ($pages->getPage(app('request')->path())) {
+    protected function registerViewNamespaces()
+    {
+        $this->app->make('view')->addNamespace('fizl', config('fizl-pages::base_path'));
+    }
+
+    protected function registerParsers()
+    {
+        $this->app->make('Anomaly\Lexicon\Parser\ParserResolver')->addParsers(
+            config(
+                'fizl-pages::extension_parsers',
+                [
+                    'md' => 'Anomaly\FizlPages\Parser\PageParser',
+                ]
+            )
+        );
+    }
+
+    protected function addViewExtension()
+    {
+        // add the extension
+        $this->app->make('view')->addExtension('md', 'lexicon');
+    }
+
+    protected function routeFizlPages()
+    {
+        $pages = app('Anomaly\FizlPages\Pages');
+
+        if ($pages->exists(app('request')->path())) {
             app('router')->any(
                 '/{any?}',
                 '\Anomaly\Streams\Addon\Module\Fizl\Http\Controller\FizlController@map'
             )->where('any', '(.*)');
-        }*/
+        }
     }
 }
  
