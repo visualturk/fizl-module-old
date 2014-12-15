@@ -68,7 +68,7 @@ class FizlModuleServiceProvider extends ServiceProvider
         if ($pages->exists(app('request')->path())) {
             app('router')->any(
                 '/{any?}',
-                '\Anomaly\Streams\Addon\Module\Fizl\Http\Controller\FizlController@map'
+                'Anomaly\Streams\Addon\Module\Fizl\Http\Controller\FizlController@map'
             )->where('any', '(.*)');
         }
     }

@@ -22,6 +22,6 @@ class PageFactorySpec extends LaravelObjectBehavior
 
     function it_creates_a_page()
     {
-        $this->create('home', 'en', ['foo' => 'bar'])->shouldImplement('\Anomaly\FizlPages\Page\Contract\Page');
+        $this->create('home', 'en', ['foo' => 'bar'])->shouldImplement('Anomaly\FizlPages\Page\Contract\Page');
     }
 }
