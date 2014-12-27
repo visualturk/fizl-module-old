@@ -12,7 +12,7 @@ class FizlModuleServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->registerFizl();
+        //$this->registerFizl();
 
         /**
          * Because this is registered AFTER
@@ -20,12 +20,12 @@ class FizlModuleServiceProvider extends ServiceProvider
          * configurations and bootstrapping
          * on their respective objects.
          */
-        $this->registerViewComposers();
+        /*$this->registerViewComposers();
         $this->registerViewNamespaces();
         $this->registerParsers();
         $this->addViewExtension();
 
-        $this->routeFizlPages();
+        $this->routeFizlPages();*/
     }
 
     protected function registerFizl()
